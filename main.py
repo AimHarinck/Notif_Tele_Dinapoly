@@ -123,14 +123,14 @@ def cek_crossing_tf(interval, label):
         print(f"[{waktu}] {label} — Tidak ada crossing. SMA3={sma3:.2f}, SMA7={sma7:.2f}")
 
 def handle_cek(chat_id):
-    """Balas command /cek dengan nilai SMA terkini H1 dan M15"""
+    """Balas command /cek dengan nilai SMA terkini per TF"""
     waktu = datetime.now().strftime("%Y-%m-%d %H:%M")
-    pesan = f"📊 <b>STATUS SMA — XAU/USD</b>\n🕐 {waktu}\n"
+    kirim_telegram(f"📊 <b>STATUS SMA — XAU/USD</b>\n🕐 {waktu}", chat_id)
 
     for interval, label in [("1h", "H1"), ("15min", "M15"), ("5min", "M5")]:
         df = ambil_data(interval)
         if df is None:
-            pesan += f"\n❌ {label}: Gagal ambil data\n"
+            kirim_telegram(f"❌ {label}: Gagal ambil data", chat_id)
             continue
 
         df["sma_fast"]  = hitung_sma_shift(df["close"], SMA_FAST_PERIOD,  SMA_FAST_SHIFT)
@@ -144,25 +144,20 @@ def handle_cek(chat_id):
         sma7  = curr["sma_slow"]
         sma25 = curr["sma_trend"]
 
-        if sma3 > sma7:
-            status = "🟢 SMA3 di ATAS SMA7"
-        else:
-            status = "🔴 SMA3 di BAWAH SMA7"
-
+        status = "🟢 SMA3 di ATAS SMA7" if sma3 > sma7 else "🔴 SMA3 di BAWAH SMA7"
         posisi = "📈 Harga > SMA25" if harga > sma25 else "📉 Harga < SMA25"
 
-        pesan += (
-            f"\n━━━━ <b>{label}</b> ━━━━\n"
+        kirim_telegram(
+            f"━━━━ <b>{label}</b> ━━━━\n"
             f"💰 Harga        : <b>${harga:,.2f}</b>\n"
             f"〰️ SMA 3 (s3)  : {sma3:,.2f}\n"
             f"〰️ SMA 7 (s5)  : {sma7:,.2f}\n"
             f"〰️ SMA 25 (s5) : {sma25:,.2f}\n"
             f"{status}\n"
-            f"{posisi}\n"
+            f"{posisi}",
+            chat_id
         )
-        time.sleep(2)
-
-    kirim_telegram(pesan, chat_id)
+        time.sleep(1)
 
 def cek_semua():
     cek_crossing_tf("1h", "H1")
