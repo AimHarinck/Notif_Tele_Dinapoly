@@ -157,7 +157,7 @@ def handle_cek(chat_id):
             f"{posisi}",
             chat_id
         )
-        time.sleep(1)
+        time.sleep(3)
 
 def cek_semua():
     cek_crossing_tf("1h", "H1")
