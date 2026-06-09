@@ -127,7 +127,7 @@ def handle_cek(chat_id):
     waktu = datetime.now().strftime("%Y-%m-%d %H:%M")
     pesan = f"📊 <b>STATUS SMA — XAU/USD</b>\n🕐 {waktu}\n"
 
-    for interval, label in [("1h", "H1"), ("15min", "M15")]:
+    for interval, label in [("1h", "H1"), ("15min", "M15"), ("5min", "M5"), ("2min", "M2")]:
         df = ambil_data(interval)
         if df is None:
             pesan += f"\n❌ {label}: Gagal ambil data\n"
@@ -166,8 +166,12 @@ def handle_cek(chat_id):
 
 def cek_semua():
     cek_crossing_tf("1h", "H1")
-    time.sleep(3)
+    time.sleep(2)
     cek_crossing_tf("15min", "M15")
+    time.sleep(2)
+    cek_crossing_tf("5min", "M5")
+    time.sleep(2)
+    cek_crossing_tf("2min", "M2")
 
 # ─── LISTENER COMMAND TELEGRAM ────────────────────────────
 last_update_id = None
@@ -202,13 +206,15 @@ def dengarkan_command():
 # ─── SCHEDULER ─────────────────────────────────────────────
 schedule.every().hour.at(":02").do(lambda: cek_crossing_tf("1h", "H1"))
 schedule.every(15).minutes.do(lambda: cek_crossing_tf("15min", "M15"))
+schedule.every(5).minutes.do(lambda: cek_crossing_tf("5min", "M5"))
+schedule.every(2).minutes.do(lambda: cek_crossing_tf("2min", "M2"))
 
 # ─── START ─────────────────────────────────────────────────
 print("🤖 Bot XAU/USD SMA Cross mulai berjalan...")
 kirim_telegram(
     "🤖 <b>Bot XAU/USD SMA Cross aktif!</b>\n"
     "Memantau Golden/Death Cross SMA 3 &amp; SMA 7\n"
-    "📊 Timeframe: H1 &amp; M15\n"
+    "📊 Timeframe: H1, M15, M5 &amp; M2\n"
     "📐 Filter: Posisi harga vs SMA 25\n\n"
     "Ketik /cek untuk lihat nilai SMA terkini!"
 )
